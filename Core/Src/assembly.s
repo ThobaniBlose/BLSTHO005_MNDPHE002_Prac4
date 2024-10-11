@@ -34,22 +34,43 @@ ASM_Main:
 
 @ TODO: Add code, labels and logic for button checks and LED patterns
 
-@ Start of the main loop
-
 main_loop:
-    @ Here we'll check buttons and adjust LED values, for now, we're writing to LEDs
-    LDR R5, LONG_DELAY_CNT     @ Load the long delay value into R5 for now (this will be adjusted)
-    BL delay                   @ Call the delay function
+
 
 write_leds:
-    STR R2, [R1, #0x14]        @ Write R2 value to GPIOB ODR (LED output)
-    B main_loop                @ Loop back to main_loop
+	STR R2, [R1, #0x14]
+	B main_loop
 
-@ Delay subroutine (placeholder for now)
-delay:
-    SUBS R5, R5, #1            @ Decrement delay counter
-    BNE delay                  @ Branch until delay expires
-    BX LR                      @ Return from subroutine
+check_buttons:
+    LDR R4, GPIOA_BASE          @ Load GPIOA base address
+    LDR R5, [R4, #0x10]         @ Read input data register (IDR) of GPIOA into R5
+
+    @ Check SW0 (bit 0 of IDR)
+    ANDS R6, R5, #0x01          @ Mask bit 0 (SW0)
+    CMP R6, #0                  @ Compare with 0
+    BEQ check_sw1               @ If SW0 is not pressed, check SW1
+    ADD R2, R2, #2              @ If SW0 is pressed, increment LEDs by 2
+
+check_sw1:
+    ANDS R6, R5, #0x02          @ Mask bit 1 (SW1)
+    CMP R6, #0
+    BEQ check_sw2
+    LDR R5, SHORT_DELAY_CNT     @ If SW1 is pressed, load the short delay value
+
+check_sw2:
+    ANDS R6, R5, #0x04          @ Mask bit 2 (SW2)
+    CMP R6, #0
+    BEQ check_sw3
+    MOVS R2, #0xAA              @ If SW2 is pressed, set LEDs to 0xAA
+
+check_sw3:
+    ANDS R6, R5, #0x08          @ Mask bit 3 (SW3)
+    CMP R6, #0
+    BEQ buttons_done            @ If SW3 is not pressed, continue
+    B write_leds                @ If SW3 is pressed, freeze the LED state
+
+buttons_done:
+    BX LR                       @ Return from function
 
 
 @ LITERALS; DO NOT EDIT
