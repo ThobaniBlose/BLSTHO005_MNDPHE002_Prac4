@@ -34,12 +34,23 @@ ASM_Main:
 
 @ TODO: Add code, labels and logic for button checks and LED patterns
 
-main_loop:
+@ Start of the main loop
 
+main_loop:
+    @ Here we'll check buttons and adjust LED values, for now, we're writing to LEDs
+    LDR R5, LONG_DELAY_CNT     @ Load the long delay value into R5 for now (this will be adjusted)
+    BL delay                   @ Call the delay function
 
 write_leds:
-	STR R2, [R1, #0x14]
-	B main_loop
+    STR R2, [R1, #0x14]        @ Write R2 value to GPIOB ODR (LED output)
+    B main_loop                @ Loop back to main_loop
+
+@ Delay subroutine (placeholder for now)
+delay:
+    SUBS R5, R5, #1            @ Decrement delay counter
+    BNE delay                  @ Branch until delay expires
+    BX LR                      @ Return from subroutine
+
 
 check_buttons:
     LDR R4, GPIOA_BASE          @ Load GPIOA base address
