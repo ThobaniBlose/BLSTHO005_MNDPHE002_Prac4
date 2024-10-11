@@ -38,8 +38,9 @@ ASM_Main:
 
 main_loop:
     @ Here we'll check buttons and adjust LED values, for now, we're writing to LEDs
-    LDR R5, LONG_DELAY_CNT     @ Load the long delay value into R5 for now (this will be adjusted)
-    BL delay                   @ Call the delay function
+    BL check_buttons            @ Check the state of the buttons (SW0-SW3)
+    LDR R5, LONG_DELAY_CNT       @ Load the long delay value into R5 for now
+    BL delay                    @ Call the delay function
 
 write_leds:
     STR R2, [R1, #0x14]        @ Write R2 value to GPIOB ODR (LED output)
