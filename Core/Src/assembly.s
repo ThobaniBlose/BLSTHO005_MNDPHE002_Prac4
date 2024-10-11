@@ -83,6 +83,12 @@ check_sw3:
 buttons_done:
     BX LR                       @ Return from function
 
+@ Delay subroutine using R5
+delay:
+    SUBS R5, R5, #1            @ Decrement delay counter
+    BNE delay                  @ Branch if not zero (repeat until done)
+    BX LR                      @ Return from delay subroutine
+
 
 @ LITERALS; DO NOT EDIT
 	.align
@@ -93,5 +99,5 @@ GPIOB_BASE:  		.word 0x48000400
 MODER_OUTPUT: 		.word 0x5555
 
 @ TODO: Add your own values for these delays
-LONG_DELAY_CNT: 	.word 0
-SHORT_DELAY_CNT: 	.word 0
+LONG_DELAY_CNT: 	.word 0x700000   @ Approximate value for 0.7-second delay
+SHORT_DELAY_CNT: 	.word 0x300000   @ Approximate value for 0.3-second delay
